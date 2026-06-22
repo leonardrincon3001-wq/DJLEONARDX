@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,11 +18,8 @@ body{
 font-family:Arial,sans-serif;
 color:white;
 
-background-image:url("./space.gif");
-background-position:center;
+background:url("space.gif") center center fixed;
 background-size:cover;
-background-repeat:no-repeat;
-background-attachment:fixed;
 
 min-height:100vh;
 padding:30px;
@@ -36,23 +32,36 @@ top:0;
 left:0;
 width:100%;
 height:100%;
-background:rgba(0,0,0,.65);
+background:rgba(0,0,0,.55);
 z-index:-1;
 }
 
 .logo{
 display:block;
-width:380px;
+width:280px;
 max-width:90%;
 margin:20px auto;
-filter:drop-shadow(0 0 20px #00e5ff);
+
+filter:
+drop-shadow(0 0 10px #00ffff)
+drop-shadow(0 0 20px #00ffff)
+drop-shadow(0 0 40px #00ffff);
+
+animation:flotar 3s ease-in-out infinite;
+}
+
+@keyframes flotar{
+0%{transform:translateY(0);}
+50%{transform:translateY(-10px);}
+100%{transform:translateY(0);}
 }
 
 h1{
 text-align:center;
 font-size:3rem;
 color:#ffd700;
-margin-bottom:30px;
+margin-bottom:25px;
+
 text-shadow:
 0 0 10px #ffd700,
 0 0 20px #ffd700,
@@ -63,14 +72,16 @@ text-shadow:
 max-width:900px;
 margin:auto;
 
-background:rgba(10,10,10,.85);
+background:rgba(0,0,0,.75);
 backdrop-filter:blur(10px);
+
+border:2px solid rgba(255,215,0,.4);
 
 padding:30px;
 border-radius:25px;
 
 box-shadow:
-0 0 20px rgba(255,215,0,.3),
+0 0 20px rgba(255,215,0,.4),
 0 0 50px rgba(255,215,0,.2);
 }
 
@@ -108,13 +119,21 @@ transform:scale(1.02);
 box-shadow:0 0 20px #ffd700;
 }
 
+.contador{
+text-align:center;
+margin-top:15px;
+font-size:18px;
+color:#00ffff;
+font-weight:bold;
+}
+
 #listaCanciones{
 max-width:900px;
 margin:30px auto;
 }
 
 .song{
-background:rgba(15,15,15,.85);
+background:rgba(0,0,0,.75);
 
 border-radius:15px;
 padding:20px;
@@ -122,23 +141,35 @@ margin-bottom:15px;
 
 backdrop-filter:blur(5px);
 
+border:1px solid rgba(255,255,255,.1);
+
 box-shadow:
 0 0 15px rgba(255,255,255,.08);
 }
 
 .song h3{
 margin-bottom:10px;
-color:#00e5ff;
+color:#00ffff;
+}
+
+.song p{
+margin-bottom:10px;
 }
 
 .voteBtn{
 margin-top:10px;
 }
 
+.top{
+color:#ffd700;
+font-size:20px;
+font-weight:bold;
+}
+
 @media(max-width:768px){
 
 .logo{
-width:260px;
+width:220px;
 }
 
 h1{
@@ -173,6 +204,10 @@ placeholder="Nombre de la canción">
 <button onclick="enviarCancion()">
 Enviar Solicitud
 </button>
+
+<div class="contador" id="contador">
+Solicitudes: 0
+</div>
 
 </div>
 
@@ -288,7 +323,11 @@ document.getElementById("listaCanciones");
 
 lista.innerHTML="";
 
-if(!snapshot.exists()) return;
+if(!snapshot.exists()){
+document.getElementById("contador").innerText =
+"Solicitudes: 0";
+return;
+}
 
 const canciones=[];
 
@@ -301,15 +340,24 @@ id:item.key,
 
 });
 
+document.getElementById("contador").innerText =
+"Solicitudes: " + canciones.length;
+
 canciones.sort(
 (a,b)=>b.votos-a.votos
 );
 
-canciones.forEach(song=>{
+canciones.forEach((song,index)=>{
 
 lista.innerHTML += `
 <div class="song">
+
+${index===0 ?
+'<div class="top">👑 MÁS VOTADA</div>'
+: ''}
+
 <h3>${song.cancion}</h3>
+
 <p>👍 ${song.votos} votos</p>
 
 <button
@@ -329,4 +377,3 @@ Votar
 
 </body>
 </html>
-```
