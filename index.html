@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJLEONARDX - Solicita tu canción</title>
+
+<style>
+body{
+    background:#111;
+    color:white;
+    font-family:Arial,sans-serif;
+    margin:0;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+    color:gold;
+}
+
+.card{
+    background:#1b1b1b;
+    padding:20px;
+    border-radius:10px;
+    margin-bottom:20px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:6px;
+}
+
+button{
+    margin-top:10px;
+    width:100%;
+    padding:12px;
+    background:gold;
+    border:none;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.song{
+    background:#222;
+    margin-top:10px;
+    padding:15px;
+    border-radius:10px;
+}
+
+.voteBtn{
+    width:auto;
+    padding:8px 15px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎧 DJLEONARDX</h1>
+
+<div class="card">
+
+<input
+id="nombre"
+placeholder="Tu nombre">
+
+<input
+id="cancion"
+placeholder="Nombre de la canción">
+
+<button onclick="enviarCancion()">
+Enviar Solicitud
+</button>
+
+</div>
+
+<div id="listaCanciones"></div>
+
+<script type="module">
+
+import {
+db,
+auth,
+ref,
+push,
+set,
+get,
+onValue,
+runTransaction
+}
+from "./firebase.js";
+
+window.enviarCancion = async function(){
+
+const nombre =
+document.getElementById("nombre").value.trim();
+
+const cancion =
+document.getElementById("cancion").value.trim();
+
+if(!nombre || !cancion){
+alert("Completa todos los campos");
+return;
+}
+
+const snapshot =
+await get(ref(db,"solicitudes"));
+
+let encontrada = null;
+
+if(snapshot.exists()){
+
+snapshot.forEach(item=>{
+
+const data = item.val();
+
+if(
+data.cancion.toLowerCase()
+===
+cancion.toLowerCase()
+){
+encontrada = item.key;
+}
+
+});
+
+}
+
+if(encontrada){
+
+votar(encontrada);
+
+alert(
+"Esta canción ya existe. Se sumó tu voto."
+);
+
+}else{
+
+const nuevaRef =
+push(ref(db,"solicitudes"));
+
+await set(nuevaRef,{
+nombre,
+cancion,
+fecha:Date.now(),
+votos:1,
+estado:"pendiente"
+});
+
+}
+
+document.getElementById("cancion").value="";
+}
+
+window.votar = async function(idCancion){
+
+const uid = auth.currentUser.uid;
+
+const votoRef =
+ref(
+db,
+`votosUsuarios/${idCancion}/${uid}`
+);
+
+const yaVoto =
+await get(votoRef);
+
+if(yaVoto.exists()){
+alert("Ya votaste por esta canción");
+return;
+}
+
+await set(votoRef,true);
+
+const votosRef =
+ref(
+db,
+`solicitudes/${idCancion}/votos`
+);
+
+await runTransaction(
+votosRef,
+(actual)=> (actual || 0)+1
+);
+
+}
+
+onValue(
+ref(db,"solicitudes"),
+(snapshot)=>{
+
+const lista =
+document.getElementById(
+"listaCanciones"
+);
+
+lista.innerHTML="";
+
+if(!snapshot.exists()) return;
+
+const canciones=[];
+
+snapshot.forEach(item=>{
+
+canciones.push({
+id:item.key,
+...item.val()
+});
+
+});
+
+canciones.sort(
+(a,b)=>b.votos-a.votos
+);
+
+canciones.forEach(song=>{
+
+lista.innerHTML += `
+<div class="song">
+<h3>${song.cancion}</h3>
+<p>👍 ${song.votos} votos</p>
+<button
+class="voteBtn"
+onclick="votar('${song.id}')">
+Votar
+</button>
+</div>
+`;
+
+});
+
+});
+
+</script>
+
+</body>
+</html>

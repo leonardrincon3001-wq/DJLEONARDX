@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJLEONARDX - Panel DJ</title>
+
+<style>
+body{
+    background:#111;
+    color:white;
+    font-family:Arial,sans-serif;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+    color:gold;
+}
+
+.song{
+    background:#1b1b1b;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+button{
+    margin-right:10px;
+    padding:8px 12px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.played{
+    background:green;
+    color:white;
+}
+
+.delete{
+    background:red;
+    color:white;
+}
+
+.reproducida{
+    opacity:0.6;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎧 PANEL DJLEONARDX</h1>
+
+<div id="lista"></div>
+
+<script type="module">
+
+import {
+db,
+ref,
+onValue,
+remove,
+update
+}
+from "./firebase.js";
+
+window.eliminar = async function(id){
+    if(confirm("¿Eliminar canción?")){
+        await remove(ref(db,`solicitudes/${id}`));
+    }
+}
+
+window.reproducida = async function(id){
+    await update(
+        ref(db,`solicitudes/${id}`),
+        {
+            estado:"reproducida"
+        }
+    );
+}
+
+onValue(
+    ref(db,"solicitudes"),
+    (snapshot)=>{
+
+        const lista =
+        document.getElementById("lista");
+
+        lista.innerHTML="";
+
+        if(!snapshot.exists()) return;
+
+        const canciones=[];
+
+        snapshot.forEach(item=>{
+            canciones.push({
+                id:item.key,
+                ...item.val()
+            });
+        });
+
+        canciones.sort(
+            (a,b)=>b.votos-a.votos
+        );
+
+        canciones.forEach(song=>{
+
+            lista.innerHTML += `
+            <div class="song ${song.estado==="reproducida" ? "reproducida":""}">
+                <h3>${song.cancion}</h3>
+                <p>Solicitada por: ${song.nombre}</p>
+                <p>👍 ${song.votos} votos</p>
+                <p>Estado: ${song.estado}</p>
+
+                <button
+                class="played"
+                onclick="reproducida('${song.id}')">
+                Reproducida
+                </button>
+
+                <button
+                class="delete"
+                onclick="eliminar('${song.id}')">
+                Eliminar
+                </button>
+            </div>
+            `;
+
+        });
+
+    }
+);
+
+</script>
+
+</body>
+</html>
