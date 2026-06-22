@@ -3,64 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DJLEONARDX - Solicita tu canción</title>
+
+<title>DJ LEONARDX - Solicita tu Canción</title>
 
 <style>
-body{
-    background:#111;
-    color:white;
-    font-family:Arial,sans-serif;
+
+*{
     margin:0;
-    padding:20px;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    color:white;
+
+    background:url("space.gif") center center fixed;
+    background-size:cover;
+
+    min-height:100vh;
+    padding:30px;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.60);
+    z-index:-1;
+}
+
+.logo{
+    display:block;
+    width:320px;
+    max-width:90%;
+    margin:20px auto;
 }
 
 h1{
     text-align:center;
-    color:gold;
+    color:#ffd700;
+    font-size:3rem;
+    margin-bottom:20px;
+    text-shadow:0 0 20px #ffd700;
 }
 
 .card{
-    background:#1b1b1b;
-    padding:20px;
-    border-radius:10px;
-    margin-bottom:20px;
+    max-width:900px;
+    margin:auto;
+    background:rgba(20,20,20,0.85);
+    backdrop-filter:blur(8px);
+
+    padding:25px;
+    border-radius:20px;
+
+    box-shadow:
+    0 0 20px rgba(255,215,0,.3);
 }
 
 input{
     width:100%;
-    padding:12px;
-    margin-top:10px;
+    padding:15px;
+    margin-bottom:15px;
+
     border:none;
-    border-radius:6px;
+    border-radius:10px;
+
+    font-size:16px;
 }
 
 button{
-    margin-top:10px;
     width:100%;
-    padding:12px;
-    background:gold;
+    padding:15px;
+
     border:none;
+    border-radius:10px;
+
+    background:#ffd700;
+    color:black;
+
     font-weight:bold;
+    font-size:16px;
+
     cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    transform:scale(1.02);
+}
+
+#listaCanciones{
+    max-width:900px;
+    margin:30px auto;
 }
 
 .song{
-    background:#222;
-    margin-top:10px;
-    padding:15px;
-    border-radius:10px;
+    background:rgba(20,20,20,.85);
+
+    border-radius:15px;
+
+    padding:20px;
+    margin-bottom:15px;
+
+    backdrop-filter:blur(5px);
+
+    box-shadow:
+    0 0 10px rgba(255,255,255,.1);
+}
+
+.song h3{
+    margin-bottom:10px;
 }
 
 .voteBtn{
-    width:auto;
-    padding:8px 15px;
+    margin-top:10px;
 }
+
 </style>
+
 </head>
 
 <body>
 
-<h1>🎧 DJLEONARDX</h1>
+<img src="logo.jpg" class="logo" alt="DJ LEONARDX">
+
+<h1>DJ LEONARDX</h1>
 
 <div class="card">
 
@@ -223,11 +294,13 @@ lista.innerHTML += `
 <div class="song">
 <h3>${song.cancion}</h3>
 <p>👍 ${song.votos} votos</p>
+
 <button
 class="voteBtn"
 onclick="votar('${song.id}')">
 Votar
 </button>
+
 </div>
 `;
 
